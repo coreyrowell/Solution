@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: VORTO Submission",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "evaluateShared.py",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "args": [
+        "--cmd",
+        "go run mySubmission.go",
+        "--problemDir",
+        "./trainingProblems"
+      ],
+      "purpose": ["debug-in-terminal"]
+    }
+  ]
+}
