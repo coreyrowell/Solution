@@ -94,21 +94,67 @@ func readInput(fileName string) []Load {
     return loads
 }
 
-func assignLoadsToDriver(loads []Load) {
+func contains(numbers []int, number int) bool {
+	for _, n := range numbers {
+		if n == number {
+			return true
+		}
+	}
+	return false
+}
 
-    // while we have remaining loads --
-    //     assign a new driver who's location is the depot (0, 0)
-    //     look at each load --
-    //         calculate distance from drivers location to first pickup
-    //         calculate distance from drivers pickup location to dropoff
-    //         calculate distance from drivers dropoff location back to depot
-    //         if the time to make the above round trip does not exceed 12 hours --
-    //             (this load can be added to drivers schedule)
-    //             add the load to drivers schedule
-    //             track time to make the trip
-    //             remove the load from our remaining loads
-    //     all loads for the driver have been checked
-    //     find a new driver if there are remaining loads
+func removeLoads(loads []Load, toRemove []int) []Load {
+	result := []Load{}
+	for _, load := range loads {
+		if !contains(toRemove, load.Number) {
+			result = append(result, load)
+		}
+	}
+	return result
+}
+
+func printExpectedOutput(drivers [][]int) {
+    for _,driverLoads := range drivers {
+        fmt.Print("[")
+        for i,loadNum := range driverLoads {
+            fmt.Print(loadNum)
+            if i < len(driverLoads)-1 {
+                fmt.Print(",")
+            }
+        }
+        fmt.Print("]")
+        fmt.Print("\n")
+    }
+}
+
+func assignLoadsToDriver(loads []Load) [][]int {
+    drivers := [][]int{}
+    remainingLoads := make([]Load, len(loads))
+    copy(remainingLoads, loads)
+
+    for len(remainingLoads) > 0 {
+        driverLoads := []int{}
+        currentTime := 0.0
+        currentPosition := Point{X: 0, Y: 0}
+
+        for _, load := range remainingLoads {
+            loadNumber := load.Number
+            pickup := load.Start
+            dropoff := load.End
+            timeToPickup := calculateDistance(currentPosition.X, currentPosition.Y, pickup.X, pickup.Y)
+            timeToDropoff := calculateDistance(pickup.X, pickup.Y, dropoff.X, dropoff.Y)
+            timeToDepot := calculateDistance(dropoff.X, dropoff.Y, 0, 0)
+
+            if (currentTime + timeToPickup + timeToDropoff + timeToDepot) <= 720 {
+                driverLoads = append(driverLoads, loadNumber)
+                currentTime += timeToPickup + timeToDropoff
+                currentPosition = dropoff
+            }
+        }
+        remainingLoads = removeLoads(remainingLoads, driverLoads)
+        drivers = append(drivers, driverLoads)
+    }
+    return drivers
 }
 
 func main() {
@@ -116,5 +162,6 @@ func main() {
     args := os.Args
     fileName := args[1]
     loads := readInput(fileName)
-    assignLoadsToDriver(loads)
+    drivers := assignLoadsToDriver(loads)
+    printExpectedOutput(drivers)
 }
