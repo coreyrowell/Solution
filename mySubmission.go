@@ -94,9 +94,27 @@ func readInput(fileName string) []Load {
     return loads
 }
 
+func assignLoadsToDriver(loads []Load) {
+
+    // while we have remaining loads --
+    //     assign a new driver who's location is the depot (0, 0)
+    //     look at each load --
+    //         calculate distance from drivers location to first pickup
+    //         calculate distance from drivers pickup location to dropoff
+    //         calculate distance from drivers dropoff location back to depot
+    //         if the time to make the above round trip does not exceed 12 hours --
+    //             (this load can be added to drivers schedule)
+    //             add the load to drivers schedule
+    //             track time to make the trip
+    //             remove the load from our remaining loads
+    //     all loads for the driver have been checked
+    //     find a new driver if there are remaining loads
+}
+
 func main() {
     // @TODO - error check args, ensure filename arg is provided
     args := os.Args
     fileName := args[1]
-    readInput(fileName)
+    loads := readInput(fileName)
+    assignLoadsToDriver(loads)
 }
