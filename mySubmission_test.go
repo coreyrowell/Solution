@@ -82,7 +82,7 @@ func TestParseLoadFromString(t *testing.T) {
     }
 }
 
-func TestAssignLoadsToDriver(t *testing.T) {
+func TestAssignLoadsToDriverUsingFarthestPickupStrategy(t *testing.T) {
 
     load1 := Load{
 		Number: 1,
@@ -110,7 +110,12 @@ func TestAssignLoadsToDriver(t *testing.T) {
 
     loads := []Load{load1, load2, load3, load4}
 
-    got := assignLoadsToDriver(loads)
+    // Create the context with the desired strategy
+    loadAssigner := &LoadAssigner{}
+    // Use Farthest Pickup First strategy
+    loadAssigner.SetStrategy(&FarthestPickupStrategy{})
+
+    got := loadAssigner.AssignLoads(loads)
     want := [][]int{
         {2, 1, 3},
         {4},
