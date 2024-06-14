@@ -1,9 +1,4 @@
-package main
-
-type Point struct {
-    X float64
-    Y float64
-}
+package load
 
 type Load struct {
     Number int
