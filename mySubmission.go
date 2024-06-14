@@ -27,9 +27,9 @@ func roundToDecimalPlaces(num float64, decimalPlaces int) float64 {
     return math.Round(num*ratio) / ratio
 }
 
-func calculateDistance(x1 float64, y1 float64, x2 float64, y2 float64) float64 {
-    d1 := x2 - x1
-    d2 := y2 - y1
+func calculateDistance(pointA Point, pointB Point) float64 {
+    d1 := pointA.X - pointB.X
+    d2 := pointA.Y - pointB.Y
     distance := math.Sqrt((d1*d1) + (d2*d2))
     distanceRounded := roundToDecimalPlaces(distance, 3)
     return distanceRounded
@@ -140,8 +140,8 @@ func assignLoadsToDriver(loads []Load) [][]int {
 
         // Sort remainingLoads such that loads with endpoints further from current position come later in list
         sort.Slice(remainingLoads, func(i, j int) bool {
-			distI := calculateDistance(currentPosition.X, currentPosition.Y, remainingLoads[i].End.X, remainingLoads[i].End.Y)
-			distJ := calculateDistance(currentPosition.X, currentPosition.Y, remainingLoads[j].End.X, remainingLoads[j].End.Y)
+			distI := calculateDistance(currentPosition, remainingLoads[i].End)
+			distJ := calculateDistance(currentPosition, remainingLoads[j].End)
 			return distI > distJ
 		})
 
@@ -149,9 +149,9 @@ func assignLoadsToDriver(loads []Load) [][]int {
             loadNumber := load.Number
             pickup := load.Start
             dropoff := load.End
-            timeToPickup := calculateDistance(currentPosition.X, currentPosition.Y, pickup.X, pickup.Y)
-            timeToDropoff := calculateDistance(pickup.X, pickup.Y, dropoff.X, dropoff.Y)
-            timeToDepot := calculateDistance(dropoff.X, dropoff.Y, 0, 0)
+            timeToPickup := calculateDistance(currentPosition, pickup)
+            timeToDropoff := calculateDistance(pickup, dropoff)
+            timeToDepot := calculateDistance(dropoff, Point{X:0, Y:0})
 
             if (currentTime + timeToPickup + timeToDropoff + timeToDepot) <= 720 {
                 driverLoads = append(driverLoads, loadNumber)

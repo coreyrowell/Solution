@@ -28,7 +28,10 @@ func TestPrecisionRoundedToHundreds(t *testing.T) {
 
 func TestCalculateDistanceBetween2Points(t *testing.T) {
 
-    got := calculateDistance(0.0, 0.0, 50.0, 50.0)
+    pointA := Point{X:0, Y:0}
+    pointB := Point{X:50, Y:50}
+
+    got := calculateDistance(pointA, pointB)
     want := 70.711
 
     if got != want {
@@ -37,9 +40,12 @@ func TestCalculateDistanceBetween2Points(t *testing.T) {
 }
 
 func TestCalculateDistanceBetween3Points(t *testing.T) {
-    // @TODO - use new Point struct
-    distanceToA := calculateDistance(0.0, 0.0, 50.0, 50.0)
-    distanceToB := calculateDistance(50.0, 50.0, 100.0, 100.0)
+    pointA := Point{X:0, Y: 0}
+    pointB := Point{X:50, Y:50}
+    pointC := Point{X:100, Y:100}
+
+    distanceToA := calculateDistance(pointA, pointB)
+    distanceToB := calculateDistance(pointB, pointC)
 
     got := distanceToA + distanceToB
     want := 141.422
