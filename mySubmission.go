@@ -6,6 +6,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"sort"
 )
 
 type Point struct {
@@ -30,7 +31,7 @@ func calculateDistance(x1 float64, y1 float64, x2 float64, y2 float64) float64 {
     d1 := x2 - x1
     d2 := y2 - y1
     distance := math.Sqrt((d1*d1) + (d2*d2))
-    distanceRounded := roundToDecimalPlaces(distance, 2)
+    distanceRounded := roundToDecimalPlaces(distance, 3)
     return distanceRounded
 }
 
@@ -136,6 +137,13 @@ func assignLoadsToDriver(loads []Load) [][]int {
         driverLoads := []int{}
         currentTime := 0.0
         currentPosition := Point{X: 0, Y: 0}
+
+        // Sort remainingLoads such that loads with endpoints further from current position come later in list
+        sort.Slice(remainingLoads, func(i, j int) bool {
+			distI := calculateDistance(currentPosition.X, currentPosition.Y, remainingLoads[i].End.X, remainingLoads[i].End.Y)
+			distJ := calculateDistance(currentPosition.X, currentPosition.Y, remainingLoads[j].End.X, remainingLoads[j].End.Y)
+			return distI > distJ
+		})
 
         for _, load := range remainingLoads {
             loadNumber := load.Number

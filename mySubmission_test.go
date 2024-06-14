@@ -29,7 +29,7 @@ func TestPrecisionRoundedToHundreds(t *testing.T) {
 func TestCalculateDistanceBetween2Points(t *testing.T) {
 
     got := calculateDistance(0.0, 0.0, 50.0, 50.0)
-    want := 70.71
+    want := 70.711
 
     if got != want {
         t.Errorf("got %f, wanted %f", got, want)
@@ -42,7 +42,7 @@ func TestCalculateDistanceBetween3Points(t *testing.T) {
     distanceToB := calculateDistance(50.0, 50.0, 100.0, 100.0)
 
     got := distanceToA + distanceToB
-    want := 141.42
+    want := 141.422
 
     if got != want {
         t.Errorf("got %f, wanted %f", got, want)
@@ -106,8 +106,8 @@ func TestAssignLoadsToDriver(t *testing.T) {
 
     got := assignLoadsToDriver(loads)
     want := [][]int{
-        {1, 2},
-        {3, 4},
+        {2, 1, 3},
+        {4},
     }
 
     for i, driver := range got {
