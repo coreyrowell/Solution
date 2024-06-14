@@ -4,8 +4,6 @@ import (
 	"testing"
 )
 
-// @TODO - it would be better to parametrize these test inputs
-
 func TestPrecisionRoundedToTens(t *testing.T) {
 
     got := roundToDecimalPlaces(1.2345, 2)
@@ -82,55 +80,77 @@ func TestParseLoadFromString(t *testing.T) {
     }
 }
 
-func TestAssignLoadsToDriverUsingFarthestPickupStrategy(t *testing.T) {
+func TestAssignLoadsToDriver(t *testing.T) {
+    runTest := func(t *testing.T, strategy LoadAssignmentStrategy, want [][]int) {
+        load1 := Load{
+            Number: 1,
+            Start:  Point{X: -50.1, Y: 80.0},
+            End:    Point{X: 90.1, Y: 12.2},
+        }
 
-    load1 := Load{
-		Number: 1,
-		Start:  Point{X: -50.1, Y: 80.0},
-		End: Point{X: 90.1, Y: 12.2},
-	}
+        load2 := Load{
+            Number: 2,
+            Start:  Point{X: -24.5, Y: -19.2},
+            End:    Point{X: 98.5, Y: 1.8},
+        }
 
-	load2 := Load{
-		Number: 2,
-		Start:  Point{X: -24.5, Y: -19.2},
-		End: Point{X: 98.5, Y: 1.8},
-	}
+        load3 := Load{
+            Number: 3,
+            Start:  Point{X: 0.3, Y: 8.9},
+            End:    Point{X: 40.9, Y: 55.0},
+        }
 
-	load3 := Load{
-		Number: 3,
-		Start:  Point{X: 0.3, Y: 8.9},
-		End: Point{X: 40.9, Y: 55.0},
-	}
+        load4 := Load{
+            Number: 4,
+            Start:  Point{X: 5.3, Y: -61.1},
+            End:    Point{X: 77.8, Y: -5.4},
+        }
 
-	load4 := Load{
-		Number: 4,
-		Start:  Point{X: 5.3, Y: -61.1},
-		End: Point{X: 77.8, Y: -5.4},
-	}
+        loads := []Load{load1, load2, load3, load4}
 
-    loads := []Load{load1, load2, load3, load4}
+        loadAssigner := &LoadAssigner{}
+        loadAssigner.SetStrategy(strategy)
 
-    // Create the context with the desired strategy
-    loadAssigner := &LoadAssigner{}
-    // Use Farthest Pickup First strategy
-    loadAssigner.SetStrategy(&FarthestPickupStrategy{})
+        got := loadAssigner.AssignLoads(loads)
 
-    got := loadAssigner.AssignLoads(loads)
-    want := [][]int{
-        {2, 1, 3},
-        {4},
-    }
-
-    for i, driver := range got {
-        for j, load := range driver {
-            if len(driver) != len(want[i]) {
-                t.Errorf("mismatched route lengths")
-                return
-            }
-            if want[i][j] != load {
-                t.Errorf("mismatched load number")
-                return
+        for i, driver := range got {
+            for j, load := range driver {
+                if len(driver) != len(want[i]) {
+                    t.Errorf("mismatched route lengths")
+                    return
+                }
+                if want[i][j] != load {
+                    t.Errorf("mismatched load number")
+                    return
+                }
             }
         }
     }
+
+    t.Run("Farthest Pickup Strategy", func(t *testing.T) {
+        strategy := &FarthestPickupStrategy{}
+        want := [][]int{
+            {2, 1, 3},
+            {4},
+        }
+        runTest(t, strategy, want)
+    })
+
+    t.Run("Nearest Pickup Strategy", func(t *testing.T) {
+        strategy := &NearestPickupStrategy{}
+        want := [][]int{
+            {3, 2, 4},
+            {1},
+        }
+        runTest(t, strategy, want)
+    })
+
+    t.Run("Unsorted Loads Pickup Strategy", func(t *testing.T) {
+        strategy := &UnsortedLoadsPickupStrategy{}
+        want := [][]int{
+            {1, 2},
+            {3, 4},
+        }
+        runTest(t, strategy, want)
+    })
 }

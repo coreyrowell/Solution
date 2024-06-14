@@ -41,3 +41,76 @@ func (s *FarthestPickupStrategy) AssignLoadsToDriver(loads []Load) [][]int {
     }
     return drivers
 }
+
+
+type NearestPickupStrategy struct{}
+
+func (s *NearestPickupStrategy) AssignLoadsToDriver(loads []Load) [][]int {
+    drivers := [][]int{}
+    remainingLoads := make([]Load, len(loads))
+    copy(remainingLoads, loads)
+
+    for len(remainingLoads) > 0 {
+        driverLoads := []int{}
+        currentTime := 0.0
+        currentPosition := Point{X: 0, Y: 0}
+
+        // Sort remainingLoads such that loads with pickup points closest to current position come first in list
+        sort.Slice(remainingLoads, func(i, j int) bool {
+			distI := calculateDistance(currentPosition, remainingLoads[i].Start)
+			distJ := calculateDistance(currentPosition, remainingLoads[j].Start)
+			return distI < distJ
+		})
+
+        for _, load := range remainingLoads {
+            loadNumber := load.Number
+            pickup := load.Start
+            dropoff := load.End
+            timeToPickup := calculateDistance(currentPosition, pickup)
+            timeToDropoff := calculateDistance(pickup, dropoff)
+            timeToDepot := calculateDistance(dropoff, Point{X:0, Y:0})
+
+            if (currentTime + timeToPickup + timeToDropoff + timeToDepot) <= 720 {
+                driverLoads = append(driverLoads, loadNumber)
+                currentTime += timeToPickup + timeToDropoff
+                currentPosition = dropoff
+            }
+        }
+        remainingLoads = removeLoads(remainingLoads, driverLoads)
+        drivers = append(drivers, driverLoads)
+    }
+    return drivers
+}
+
+
+type UnsortedLoadsPickupStrategy struct{}
+
+func (s *UnsortedLoadsPickupStrategy) AssignLoadsToDriver(loads []Load) [][]int {
+    drivers := [][]int{}
+    remainingLoads := make([]Load, len(loads))
+    copy(remainingLoads, loads)
+
+    for len(remainingLoads) > 0 {
+        driverLoads := []int{}
+        currentTime := 0.0
+        currentPosition := Point{X: 0, Y: 0}
+
+        for _, load := range remainingLoads {
+            loadNumber := load.Number
+            pickup := load.Start
+            dropoff := load.End
+            timeToPickup := calculateDistance(currentPosition, pickup)
+            timeToDropoff := calculateDistance(pickup, dropoff)
+            timeToDepot := calculateDistance(dropoff, Point{X:0, Y:0})
+
+            if (currentTime + timeToPickup + timeToDropoff + timeToDepot) <= 720 {
+                driverLoads = append(driverLoads, loadNumber)
+                currentTime += timeToPickup + timeToDropoff
+                currentPosition = dropoff
+            }
+        }
+        remainingLoads = removeLoads(remainingLoads, driverLoads)
+        drivers = append(drivers, driverLoads)
+    }
+    return drivers
+}
